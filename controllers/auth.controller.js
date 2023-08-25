@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-
+const bcrypt = require("bcrypt")
 const User = require("../models/users.model");
 
 const login = async (req, res) => {
@@ -52,31 +52,17 @@ const signup = async (req, res) => {
     return res.status(404).json({ error: "Oe, este usuario ya existe" });
   }
 
+  let newUser
   try {
     const passwordEncrypt = await bcrypt.hash(password, 10);
-    const newUser = await User.create({
+    newUser = await User.create({
       firstname,
       lastname,
       email,
       password: passwordEncrypt,
     });
-
-    const expireTime = Math.floor(new Date() / 1000) + 3600;
-
-    const token = jwt.sign(
-      {
-        exp: expireTime,
-        data: {
-          id: newUser.id,
-          email: newUser.email,
-          firstname: newUser.firstname,
-          lastname: newUser.lastname,
-        },
-      },
-      process.env.SECRET_KEY
-    );
-
-    res.json(token)
+    console.log(newUser, "llegue")
+    res.json(newUser)
 
   } catch (error) {
     return res.status(400).json(error)
